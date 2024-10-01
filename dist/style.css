@@ -22,10 +22,32 @@ canvas {
   width: 30px;
   height: 30px;
   cursor: pointer;
-  border: 1px solid #000;
+  border: 1px solid lightgray; /* 初期は灰色の枠 */
 }
 
 .selected-color {
   margin-top: 10px;
   font-size: 1.2em;
+}
+
+#shareButton {
+  margin-top: 20px;
+  display: block;
+  width: 100px;
+  padding: 10px;
+  text-align: center;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#shareButton:hover {
+  background-color: #45a049;
+}
+
+#shareURL {
+  margin-top: 10px;
+  display: block;
+  font-size: 14px;
 }

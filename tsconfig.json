@@ -1,16 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES5",                        // 出力するJavaScriptのバージョン
-    "module": "commonjs",                   // モジュールシステム (Node.jsで使う場合はcommonjs)
-    "outDir": "./dist",                     // JavaScriptの出力先ディレクトリ
-    "rootDir": "./src",                     // TypeScriptファイルのルートディレクトリ
-    "strict": true,                         // 厳密な型チェック
-    "esModuleInterop": true                 // ESモジュールとの互換性
+    "target": "es2015",                 // 出力されるJavaScriptのバージョン
+    "module": "NodeNext",            // Webpackがモジュール解決を行うのでNodeNextモジュールを使う
+    "strict": true,                   // 厳格な型チェック
+    "moduleResolution": "nodenext"
   },
   "include": [
-    "src/**/*.ts"                           // srcディレクトリ内のすべてのTypeScriptファイルをコンパイル対象とする
+    "src/**/*.ts"                    // srcフォルダ内の全てのTypeScriptファイル
   ],
-  "exclude": [
-    "node_modules"                          // node_modulesディレクトリをコンパイル対象から除外
-  ]
+  "downlevelIteration": true,
+  "moduleResolution": "nodenext"
 }

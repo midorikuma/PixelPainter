@@ -4,19 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ファミコン ドットエディタ</title>
+    <title>Pixel Painter</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <h1>ファミコン ドットエディタ</h1>
+    <h1>Pixel Painter</h1>
+
     <!-- 16x16のドットエディタキャンバス -->
     <canvas id="canvas" width="320" height="320"></canvas>
+
     <!-- カラーパレット -->
     <div class="palette" id="palette"></div>
-    <div class="selected-color">選択中の色: <span id="current-color"></span></div>
 
-    <script src="main.js"></script>
+    <!-- 選択中の色表示 -->
+    <div class="selected-color">選択中の色: <span id="current-color">#000000</span></div>
+
+    <!-- 共有ボタン -->
+    <button id="shareButton">共有</button>
+    <span id="shareURL"></span>
+
+    <script src="bundle.js"></script>
 </body>
 
 </html>

@@ -74,3 +74,17 @@ export function decodeAndDecompress(base64: string): number[] {
   const rleData = Array.from(inflatedData);  // Uint8Array -> number[]
   return rleDecode(rleData);  // RLE解凍
 }
+
+/**
+ * キャンバスデータを元にURLを生成する関数
+ * @param canvasData キャンバスデータ (number[])
+ * @param baseURL ベースとなるURL (デフォルトは現在のページのURL)
+ * @returns 生成された共有URL
+ */
+export function generateCanvasURL(canvasData: number[], baseURL: string = window.location.origin + window.location.pathname): string {
+  // キャンバスが未描画（すべてインデックス0）の場合はパラメータなしのURLを返す
+  const isCanvasEmpty = canvasData.every(pixel => pixel === 0);
+  
+  // 未描画ならベースURLだけを返し、描画されていればエンコードされたデータ付きURLを返す
+  return isCanvasEmpty ? baseURL : `${baseURL}?data=${compressAndEncode(canvasData)}`;
+}

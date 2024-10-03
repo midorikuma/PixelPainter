@@ -1,5 +1,6 @@
 import { CanvasManager } from './canvasManager';
-import { compressAndEncode, decodeAndDecompress } from './encoder';
+import { compressAndEncode } from './encoder';
+import { decodeAndDecompress } from './decoder';
 
 export class URLManager {
   private canvasManager: CanvasManager;

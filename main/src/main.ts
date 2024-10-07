@@ -19,7 +19,7 @@ const canvasManager = new CanvasManager(canvasElement, paletteManager);
 const urlManager = new URLManager(canvasManager, shareButton, shareURLDiv);
 
 // OGPManagerのインスタンスを作成
-const ogpManager = new OGPManager(canvasManager);
+const ogpManager = new OGPManager();
 
 // ページロード時の処理
 window.onload = () => {

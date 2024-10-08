@@ -12,18 +12,11 @@ module.exports = {
                 test: /\.ts$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
-            },
-            {
-                test: /\.wasm$/,
-                type: 'asset/resource',
-            },
+            }
         ]
     },
     resolve: {
-        extensions: ['.ts', '.js'],
-        alias: {
-            resvg: require.resolve('resvg')
-        }
+        extensions: ['.ts', '.js']
     },
     mode: 'production'
 };

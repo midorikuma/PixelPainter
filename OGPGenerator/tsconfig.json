@@ -11,7 +11,6 @@
     "lib": ["ES2020", "WebWorker"]
   },
   "include": [
-    "src/**/*",
-    "types.d.ts"
+    "src/**/*"
   ]
 }

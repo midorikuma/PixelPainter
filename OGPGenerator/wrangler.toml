@@ -2,8 +2,5 @@ name = "ogp-generator"
 compatibility_date = "2023-10-04"
 main = "./dist/bundle.js"
 
-[wasm_modules]
-resvg_wasm = "./dist/index_bg.wasm"
-
 [observability]
 enabled = true

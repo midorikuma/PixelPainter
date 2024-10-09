@@ -1,6 +1,7 @@
 import { CanvasManager } from './canvasManager';
 import { compressAndEncode } from './encoder';
 import { decodeAndDecompress } from './decoder';
+import { OGPManager } from './ogpManager';
 
 export class URLManager {
   private canvasManager: CanvasManager;
@@ -39,6 +40,10 @@ export class URLManager {
           // クリップボードが利用できない場合、URLを表示
           this.shareURLDiv.textContent = 'クリップボードが利用できません。URL: ' + shareURL;
         }
+        
+        // OGP画像を設定
+        new OGPManager().setupOGP();
+
       } catch (error) {
         console.error('エンコード処理中にエラーが発生しました: ', error);
         this.shareURLDiv.textContent = 'URLの生成に失敗しました';

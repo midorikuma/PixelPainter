@@ -1,0 +1,15 @@
+name = "ogp-generator"
+compatibility_date = "2023-10-04"
+main = "./dist/bundle.js"
+
+[[r2_buckets]]
+binding = 
+bucket_name = 
+
+[vars]
+ACCOUNT_ID = 
+R2_ACCESS_KEY_ID = 
+R2_SECRET_ACCESS_KEY = 
+
+[observability]
+enabled = true

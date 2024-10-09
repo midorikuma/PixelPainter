@@ -5,10 +5,14 @@ export class OGPManager {
     try {
       // キャンバス要素からBase64エンコードされた画像データを取得
       const canvasElement = document.getElementById('canvas') as HTMLCanvasElement;
+      if (!canvasElement) {
+        throw new Error('Canvas要素が見つかりません');
+      }
+
       // Base64 PNG形式でエンコード
       const base64Data = canvasElement.toDataURL('image/png');
 
-      //width, heightをcanvasElementから取得
+      // width, heightをcanvasElementから取得
       const width = canvasElement.width;
       const height = canvasElement.height;
 
@@ -23,20 +27,23 @@ export class OGPManager {
       // Cloudflare WorkersなどのOGP生成エンドポイントにPOSTリクエスト
       const response = await fetch('https://ogp-generator.huedpaw.workers.dev/', {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
         },
         body: jsonData,
       });
 
       if (!response.ok) {
-        throw new Error(`OGP画像の生成に失敗しました: ${await response.text()}`);
+        throw new Error(`OGP画像の生成に失敗しました: ステータスコード ${response.status}`);
       }
 
-      // Blobとして画像データを取得
-      const imageBlob = await response.blob();
-      const imageUrl = URL.createObjectURL(imageBlob);  // BlobからローカルURLを生成
+      // レスポンスから画像URLを取得
+      const responseData = await response.json();
+      if (!responseData.url) {
+        throw new Error('OGP画像のURLがレスポンスに含まれていません');
+      }
+      const imageUrl = responseData.url;
 
       // OGPメタタグの設定
       this.setOGPImage(imageUrl);

@@ -1,6 +1,13 @@
 name = "ogp-generator"
-compatibility_date = "2023-10-04"
+compatibility_date = "2024-10-09"
 main = "./dist/bundle.js"
+
+[[r2_buckets]]
+binding = "MY_R2_BUCKET"
+bucket_name = "ogp-storage"
+
+[vars]
+ACCOUNT_ID = "dbe671b68b32efaa8b31a91d2d3d670b"
 
 [observability]
 enabled = true

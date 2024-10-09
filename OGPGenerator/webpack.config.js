@@ -1,10 +1,12 @@
 const path = require('path');
 
 module.exports = {
-    entry: './src/main.ts',
+    target: 'webworker',  // Cloudflare Workers のため 'webworker' を指定
+    entry: './src/index.ts',  // エントリーポイントのパスが正しいことを確認
     output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: 'bundle.js',  // 出力ファイル名
+        path: path.resolve(__dirname, 'dist'),
+        globalObject: 'this',  // グローバルオブジェクトを 'this' に設定
     },
     module: {
         rules: [
@@ -12,8 +14,8 @@ module.exports = {
                 test: /\.ts$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
-            }
-        ]
+            },
+        ],
     },
     resolve: {
         extensions: ['.ts', '.js']

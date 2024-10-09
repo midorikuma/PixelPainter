@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",
+    "module": "ES2020",
     "moduleResolution": "Node",
+    "lib": ["es2020", "WebWorker"],
+    "types": ["@cloudflare/workers-types"],
+    "allowJs": true,
+    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["@cloudflare/workers-types"],
-    "lib": ["ES2020", "WebWorker"]
+    "skipLibCheck": true
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

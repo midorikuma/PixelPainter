@@ -8,8 +8,6 @@ bucket_name =
 
 [vars]
 ACCOUNT_ID = 
-R2_ACCESS_KEY_ID = 
-R2_SECRET_ACCESS_KEY = 
 
 [observability]
 enabled = true

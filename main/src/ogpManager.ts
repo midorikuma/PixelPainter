@@ -27,9 +27,12 @@ export class OGPManager {
       // Cloudflare WorkersなどのOGP生成エンドポイントにPOSTリクエスト
       const response = await fetch('https://ogp-generator.huedpaw.workers.dev/', {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers',
         },
         body: jsonData,
       });

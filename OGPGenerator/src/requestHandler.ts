@@ -1,6 +1,10 @@
 declare const MY_R2_BUCKET: R2Bucket;
 
 export async function handleRequest(request: Request): Promise<Response> {
+  if (request.method === 'OPTIONS') {
+    return handleOptionsRequest();
+  }
+
   if (request.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
   }
@@ -42,11 +46,26 @@ export async function handleRequest(request: Request): Promise<Response> {
     const publicUrl = `${new URL(request.url).origin}/images/${encodeURIComponent(objectKey)}`;
 
     // 画像 URL をレスポンスとして返す
-    return new Response(JSON.stringify({ url: publicUrl }), {
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-    });
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json');
+    headers.set('Access-Control-Allow-Origin', '*');
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    headers.set('Access-Control-Allow-Headers', 'Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers');
+    return new Response(JSON.stringify({ url: publicUrl }), { headers });
+
   } catch (error: any) {
     console.error('Error processing request:', error);
     return new Response('Error processing request: ' + (error.message || error), { status: 500 });
   }
+}
+
+function handleOptionsRequest(): Response {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers',
+    },
+  });
 }

@@ -1,3 +1,5 @@
+import * as pako from 'pako';  // pakoライブラリを使用してDeflate圧縮/解凍を行う
+
 // URLセーフなBase64デコード
 export function urlSafeBase64Decode(base64: string): Uint8Array {
   const safeBase64 = base64.replace(/-/g, '+').replace(/_/g, '/');
@@ -114,6 +116,11 @@ export function decodeAndDecompress(encoded: string): number[] {
       runLengths = rleData.slice(valuesCount);
     }
     decodedData = new Uint8Array(rleDecode(values, runLengths));
+  }
+
+  // Deflate圧縮が使われている場合
+  if (methodIndicator & 8) {
+    decodedData = pako.inflate(decodedData);  // Deflate展開
   }
 
   // 辞書型圧縮の解凍

@@ -1,5 +1,4 @@
 export class OGPManager {
-
   // OGP画像を設定する
   async setupOGP() {
     try {
@@ -30,9 +29,6 @@ export class OGPManager {
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers',
         },
         body: jsonData,
       });
@@ -43,6 +39,7 @@ export class OGPManager {
 
       // レスポンスから画像URLを取得
       const responseData = await response.json();
+      console.log('レスポンスデータ:', responseData);
       if (!responseData.url) {
         throw new Error('OGP画像のURLがレスポンスに含まれていません');
       }
@@ -57,23 +54,29 @@ export class OGPManager {
 
   // OGPメタタグを設定
   private setOGPImage(imageUrl: string) {
-    const tagsToUpdate = [
-      { selector: 'meta[property="og:image"]', property: 'property', name: 'og:image' },
-      { selector: 'meta[name="twitter:image"]', property: 'name', name: 'twitter:image' }
-    ];
+    document.addEventListener('DOMContentLoaded', () => {
+      const tagsToUpdate = [
+        { selector: 'meta[property="og:image"]', property: 'property', name: 'og:image', content: imageUrl },
+        { selector: 'meta[name="twitter:image"]', property: 'name', name: 'twitter:image', content: imageUrl },
+        { selector: 'meta[property="og:description"]', property: 'property', name: 'og:description', content: 'Pixel Painterで作成された画像です。' },
+        { selector: 'meta[name="twitter:description"]', property: 'name', name: 'twitter:description', content: 'Pixel Painterで作成された画像です。' },
+        { selector: 'meta[property="og:title"]', property: 'property', name: 'og:title', content: 'Pixel Painter' },
+        { selector: 'meta[name="twitter:title"]', property: 'name', name: 'twitter:title', content: 'Pixel Painter' },
+      ];
 
-    tagsToUpdate.forEach(tagInfo => {
-      let tag = document.querySelector(tagInfo.selector);
+      tagsToUpdate.forEach(tagInfo => {
+        let tag = document.querySelector(tagInfo.selector);
 
-      if (!tag) {
-        tag = document.createElement('meta');
-        tag.setAttribute(tagInfo.property, tagInfo.name);
-        document.head.appendChild(tag);
-      }
+        if (!tag) {
+          tag = document.createElement('meta');
+          tag.setAttribute(tagInfo.property, tagInfo.name);
+          document.head.appendChild(tag);
+        }
 
-      tag.setAttribute('content', imageUrl);
+        tag.setAttribute('content', tagInfo.content);
+      });
+
+      console.log(`OGP画像が設定されました: ${imageUrl}`);
     });
-
-    console.log(`OGP画像が設定されました: ${imageUrl}`);
   }
 }

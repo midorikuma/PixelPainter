@@ -86,10 +86,13 @@ export function decodeAndDecompress(encoded: string): number[] {
   let valuesCount = 0;
   let dictSize = 0;
 
+  // console.log(decodedData)
+  
   // Deflate圧縮が使われている場合
   if (methodIndicator & 8) {
     decodedData = pako.inflate(decodedData);  // Deflate展開
   }
+
   // もし辞書型圧縮が使われている場合
   if (methodIndicator & 1) {
     dictSize = decodedData[0];  // 辞書サイズ

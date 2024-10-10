@@ -1,6 +1,7 @@
 import { CanvasManager } from './canvasManager';
 import { PaletteManager } from './paletteManager';
 import { URLManager } from './urlManager';
+import { OGPManager } from './ogpManager';
 
 const canvasElement = document.getElementById('canvas') as HTMLCanvasElement;
 const paletteDiv = document.getElementById('palette') as HTMLDivElement;
@@ -16,6 +17,9 @@ const canvasManager = new CanvasManager(canvasElement, paletteManager);
 
 // URLManagerのインスタンスを作成（共有ボタンと連携）
 const urlManager = new URLManager(canvasManager, shareButton, shareURLDiv);
+
+// OGP画像を設定
+new OGPManager().setupOGP();
 
 // ページロード時の処理
 window.onload = () => {

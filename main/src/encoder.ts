@@ -1,10 +1,5 @@
 import * as pako from 'pako';  // pakoライブラリを使用してDeflate圧縮/解凍を行う
 
-// Deflate圧縮
-export function deflateCompress(data: Uint8Array): Uint8Array {
-  return pako.deflate(data);  // Deflate圧縮
-}
-
 // URLセーフなBase64エンコード
 export function urlSafeBase64Encode(data: Uint8Array): string {
   const binaryString = Array.from(data).map(byte => String.fromCharCode(byte)).join('');
@@ -138,7 +133,6 @@ export function compressAndEncode(data: number[]): string {
     currentData = RLEData;
     methodIndicator |= 2;  // RLEが適用されたことをビットフラグに記録
   }
-  console.log(currentData)
 
   // 3. ビット圧縮を適用して短縮されたか確認
   const compressedBits = compressWithBitSize(values, runLengths, dictSize, maxRLESize);
@@ -147,21 +141,21 @@ export function compressAndEncode(data: number[]): string {
     methodIndicator |= 4;  // ビット圧縮が適用されたことをビットフラグに記録
   }
 
+  // 辞書サイズ、最大RLEサイズ、辞書、データサイズ、データを連結
+  currentData = new Uint8Array([dictSize, maxRLESize, ...dictionary, values.length, ...currentData]);
+
   // 4. Deflate圧縮を適用して短縮されたか確認
-  const deflatedData = deflateCompress(currentData as Uint8Array);
+  const deflatedData = pako.deflate(currentData);
   if (deflatedData.length < currentData.length) {
     currentData = deflatedData;
     methodIndicator |= 8;  // Deflate圧縮が適用されたことをビットフラグに記録
   }
-
-  let encodeData = new Uint8Array(currentData);
-  // 辞書サイズ、最大RLEサイズ、辞書、データサイズ、データを連結
-  encodeData = new Uint8Array([dictSize, maxRLESize, ...dictionary, values.length, ...encodeData]);
-  // console.log(encodeData)
+  
+  // console.log(currentData)
 
   // 圧縮方式フラグを1文字に変換して付加
   const methodChar = String.fromCharCode(65 + methodIndicator);  // A, B, C, D...
-  const base64Encoded = urlSafeBase64Encode(encodeData);
+  const base64Encoded = urlSafeBase64Encode(currentData);
 
   return `${methodChar}${base64Encoded}`;
 }

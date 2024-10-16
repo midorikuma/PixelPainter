@@ -1,1 +1,0 @@
-C:\Users\tatsu\Documents\GitHub\PixelPainter\common\tiny-skia\target\wasm32-unknown-unknown\release\tiny_skia_wasm_example.wasm: C:\Users\tatsu\Documents\GitHub\PixelPainter\common\tiny-skia\src\lib.rs

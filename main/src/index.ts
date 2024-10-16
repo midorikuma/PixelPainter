@@ -18,9 +18,9 @@ const canvasManager = new CanvasManager(canvasElement, paletteManager);
 const urlManager = new URLManager(canvasManager, shareButton, shareURLDiv);
 
 // ページロード時の処理
-window.onload = () => {
-  canvasManager.initialize();           // キャンバスを初期化
-  paletteManager.createPalette();       // カラーパレットの生成
-  urlManager.loadCanvasFromURL();       // URLからキャンバスデータを復元
-  urlManager.setupShareButton();        // 共有ボタンの設定
+window.onload = async () => {
+  paletteManager.createPalette();   // カラーパレットの生成
+  await canvasManager.initialize(); // 非同期でキャンバスを初期化
+  urlManager.loadCanvasFromURL();   // URLからキャンバスデータを復元
+  urlManager.setupShareButton();    // 共有ボタンの設定
 };

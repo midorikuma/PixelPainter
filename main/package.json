@@ -1,4 +1,5 @@
 {
+  "type": "module",
     "scripts": {
         "deploy": "gh-pages -d dist",
         "publish": "npm run deploy"

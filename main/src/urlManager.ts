@@ -17,18 +17,13 @@ export class URLManager {
   setupShareButton() {
     this.shareButton.addEventListener('click', () => {
       try {
-        const canvasData = this.canvasManager.getCanvasData();  // キャンバスデータを取得 (number[])
+        const canvasData = this.canvasManager.getCanvasData();
 
-        // キャンバスが未描画（すべて白＝インデックス0）の場合
         const isCanvasEmpty = canvasData.every(pixel => pixel === 0);
-
-        // 未描画ならパラメータなしのURLを生成
         const baseURL = window.location.origin + window.location.pathname;
         const shareURL = isCanvasEmpty ? baseURL : `${baseURL}?data=${compressAndEncode(canvasData)}`;
 
-        // クリップボードが利用可能かを確認
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          // クリップボードにURLをコピー
           navigator.clipboard.writeText(shareURL).then(() => {
             this.shareURLDiv.textContent = 'URLをコピーしました: ' + shareURL;
           }).catch(err => {
@@ -36,7 +31,6 @@ export class URLManager {
             this.shareURLDiv.textContent = 'URLのコピーに失敗しました';
           });
         } else {
-          // クリップボードが利用できない場合、URLを表示
           this.shareURLDiv.textContent = 'クリップボードが利用できません。URL: ' + shareURL;
         }
 
@@ -46,6 +40,7 @@ export class URLManager {
       }
     });
   }
+
 
   // URLからキャンバスデータを復元する処理
   loadCanvasFromURL() {

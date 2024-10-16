@@ -6,7 +6,8 @@ module.exports = {
     output: {
         filename: 'bundle.js',  // 出力ファイル名
         path: path.resolve(__dirname, 'dist'),
-        globalObject: 'this',  // グローバルオブジェクトを 'this' に設定
+        publicPath: undefined,         // 空文字列を指定してパス推測を無効化
+        globalObject: 'this',   // グローバルオブジェクトを 'this' に設定
     },
     module: {
         rules: [

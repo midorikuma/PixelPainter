@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "es2015",                 // 出力されるJavaScriptのバージョン
-    "module": "NodeNext",            // Webpackがモジュール解決を行うのでNodeNextモジュールを使う
+    "module": "esnext",            // Webpackがモジュール解決を行うのでNodeNextモジュールを使う
     "strict": true,                   // 厳格な型チェック
-    "moduleResolution": "nodenext"
+    "moduleResolution": "node"
   },
   "include": [
     "src/**/*.ts"                    // srcフォルダ内の全てのTypeScriptファイル
   ],
   "downlevelIteration": true,
-  "moduleResolution": "nodenext"
+  "moduleResolution": "node"
 }

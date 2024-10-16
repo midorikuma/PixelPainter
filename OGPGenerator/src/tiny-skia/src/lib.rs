@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::*;
-use tiny_skia::{Pixmap, PremultipliedColorU8};
+use tiny_skia::{Pixmap, PremultipliedColorU8, Color};
 use std::cell::RefCell;
 
 // 画像データを保持するためのグローバル変数
@@ -8,30 +8,34 @@ thread_local! {
 }
 
 #[wasm_bindgen]
-pub fn generate_image(
+pub fn generate_image_with_offset(
     canvas_data_ptr: *const u8,
     canvas_data_len: usize,
     grid_size: usize,
     dot_size: u32,
     colors_ptr: *const u8,
     colors_len: usize,
+    canvas_width: u32,
+    canvas_height: u32,
+    offset_x: u32,
+    offset_y: u32,
 ) {
     // ポインタからスライスを作成
     let canvas_data = unsafe { std::slice::from_raw_parts(canvas_data_ptr, canvas_data_len) };
     let colors = unsafe { std::slice::from_raw_parts(colors_ptr, colors_len) };
 
-    let width = grid_size as u32 * dot_size;
-    let height = grid_size as u32 * dot_size;
-
     // Pixmapオブジェクトを生成
-    let mut pixmap = Pixmap::new(width, height).expect("Failed to create pixmap");
+    let mut pixmap = Pixmap::new(canvas_width, canvas_height).expect("Failed to create pixmap");
 
-    // Pixmapのピクセル配列を取得
+    // 背景を白色で塗りつぶす
+    pixmap.fill(Color::from_rgba8(255, 255, 255, 255));
+
+    // ピクセル配列を取得
     let pixels = pixmap.pixels_mut();
 
     // グリッドデータを描画
-    for i in 0..grid_size {
-        for j in 0..grid_size {
+    for j in 0..grid_size {
+        for i in 0..grid_size {
             let index = canvas_data[j * grid_size + i] as usize;
             let color_start = index * 3;
 
@@ -43,18 +47,22 @@ pub fn generate_image(
             let g = colors[color_start + 1];
             let b = colors[color_start + 2];
 
-            // OptionからPremultipliedColorU8を取得
+            // PremultipliedColorU8を取得
             let premultiplied_color = PremultipliedColorU8::from_rgba(r, g, b, 255).unwrap();
 
-            let x_start = i as u32 * dot_size;
-            let y_start = j as u32 * dot_size;
+            let x_start = offset_x + i as u32 * dot_size;
+            let y_start = offset_y + j as u32 * dot_size;
 
             // 各ドットサイズに基づき、色を塗りつぶす
-            for x in 0..dot_size {
-                for y in 0..dot_size {
-                    let pos = ((y_start + y) * width + (x_start + x)) as usize;
-                    if pos < pixels.len() {
-                        pixels[pos] = premultiplied_color;
+            for y in 0..dot_size {
+                for x in 0..dot_size {
+                    let px = x_start + x;
+                    let py = y_start + y;
+                    if px < canvas_width && py < canvas_height {
+                        let pos = (py * canvas_width + px) as usize;
+                        if pos < pixels.len() {
+                            pixels[pos] = premultiplied_color;
+                        }
                     }
                 }
             }

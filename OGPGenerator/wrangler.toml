@@ -6,9 +6,6 @@ main = "./dist/bundle.js"
 binding = "MY_R2_BUCKET"
 bucket_name = "ogp-storage"
 
-[vars]
-ACCOUNT_ID = "dbe671b68b32efaa8b31a91d2d3d670b"
-
 [observability]
 enabled = true
 

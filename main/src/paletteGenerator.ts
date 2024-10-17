@@ -8,17 +8,23 @@ export function generateColorPalette(): string[] {
   const grayscale = ['#FFFFFF', '#CCCCCC', '#888888', '#000000'];
   grayscale.forEach(color => palette.push(color));
 
-  // 色相12段階で青（210度）からスタート
+  // 色相12段階で青（210度）からスタートし、明度ごとに変換
   for (let i = 0; i < 12; i++) {  // 色相12段階
     for (let b = 0; b < brightness.length; b++) {  // 明度4段階
       const hue = (210 + i * hueBase) % 360;  // 色相を計算
-      const lightness = brightness[b] * 100;  // 明度をパーセントに変換
-      const color = `hsl(${hue}, 100%, ${lightness}%)`;  // HSL形式で色を生成
-      palette.push(color);
+      const lightness = brightness[b];  // 明度を0-1範囲で変換
+      const rgb = hslToRgb(hue, 1.0, lightness);
+      const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+      palette.push(hex);  // 16進数カラーコードを追加
     }
   }
 
   return palette;
+}
+
+// RGBから16進数カラーコードへ変換
+function rgbToHex(r: number, g: number, b: number): string {
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
 }
 
 // パレットの配列を縦横入れ替える関数
@@ -40,26 +46,8 @@ export function getPaletteColors(): Uint8Array {
   const rgbColors: number[] = [];
 
   colors.forEach(color => {
-    let rgb: [number, number, number];
-
-    if (color.startsWith('#')) {
-      // 16進数カラーコードをRGBに変換
-      rgb = hexToRgb(color);
-    } else if (color.startsWith('hsl')) {
-      // HSLをRGBに変換
-      const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%?,\s*(\d+)%\)/);
-      if (hslMatch) {
-        const h = parseInt(hslMatch[1]);
-        const s = parseInt(hslMatch[2]) / 100;
-        const l = parseInt(hslMatch[3]) / 100;
-        rgb = hslToRgb(h, s, l);
-      } else {
-        throw new Error(`Invalid color format: ${color}`);
-      }
-    } else {
-      throw new Error(`Unknown color format: ${color}`);
-    }
-
+    // 16進数カラーコードをRGBに変換
+    const rgb = hexToRgb(color);
     rgbColors.push(rgb[0], rgb[1], rgb[2]);
   });
 

@@ -1,35 +1,90 @@
+:root {
+  --grid-gap: 2px;         /* グリッド間の隙間 */
+  --grid-padding: 0px;     /* 左右端の余白 */
+  --columns: 13;           /* 列数 */
+  --rows: 4;               /* 行数 */
+  --cell-size: calc(
+    (100vw - (var(--grid-padding) * 2) - ((var(--columns) - 1) * var(--grid-gap))) / var(--columns)
+  ); /* 各セルのサイズ */
+}
+
+/* 全要素にボックスサイズを適用し、デフォルトのマージンとパディングをリセット */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* 水平スクロールを防止 */
+}
+
 body {
   font-family: sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
+  justify-content: flex-start; /* 上部に配置 */
+  overflow: hidden;            /* 全体のスクロールを防止 */
+  touch-action: none;          /* タッチスクロールやズームを防止 */
 }
 
+/* キャンバスのスタイル */
 canvas {
   border: 1px solid black;
+  display: block; /* インラインスペースを除去 */
 }
 
+/* パレットのスタイル */
 .palette {
+  width: calc(var(--columns) * var(--cell-size) + (var(--columns) - 1) * var(--grid-gap));
+  max-width: 100%; /* 初期設定。JavaScriptでキャンバスの1.5倍に制限 */
   display: grid;
-  grid-template-columns: repeat(13, 1fr); /* 横13列 */
-  grid-template-rows: repeat(4, 1fr);     /* 縦4段 */
-  gap: 5px;
+  grid-template-columns: repeat(var(--columns), var(--cell-size));
+  grid-template-rows: repeat(var(--rows), var(--cell-size));
+  gap: var(--grid-gap); /* グリッド間の隙間 */
   margin-top: 20px;
+  padding: 0 var(--grid-padding); /* 左右端の余白 */
+  justify-content: center; /* グリッド全体を中央に配置 */
 }
 
+/* グリッドセルのスタイル */
 .color {
-  width: 30px;
-  height: 30px;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
-  border: 1px solid lightgray; /* 初期は灰色の枠 */
+  background-color: lightgray; /* デフォルトの色 */
+  position: relative;
 }
 
+/* 各グリッドセルに内向きの灰色アウトラインを追加 */
+.color::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid gray; /* 内向きの灰色アウトライン */
+  box-sizing: border-box;
+  pointer-events: none; /* アウトラインがクリックを妨げないように */
+}
+
+/* 選択時の黒枠 */
+.color.selected::before {
+  border: 2px solid black; /* 選択された色に太い黒枠を付ける */
+}
+
+/* 選択中の色表示 */
 .selected-color {
   margin-top: 10px;
   font-size: 1.2em;
+  text-align: center;
 }
 
+/* 共有ボタンのスタイル */
 #shareButton {
   margin-top: 20px;
   display: block;
@@ -46,8 +101,15 @@ canvas {
   background-color: #45a049;
 }
 
+/* 共有URLの表示 */
 #shareURL {
   margin-top: 10px;
   display: block;
   font-size: 14px;
+  text-align: center;
+}
+
+/* キャンバスとパレットがタッチ操作でページをスクロールさせないようにする */
+canvas, .palette {
+  touch-action: none;
 }

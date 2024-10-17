@@ -1,7 +1,10 @@
+// index.ts
+
 import { CanvasManager } from './canvasManager';
 import { PaletteManager } from './paletteManager';
 import { URLManager } from './urlManager';
 
+// DOM要素の取得
 const canvasElement = document.getElementById('canvas') as HTMLCanvasElement;
 const paletteDiv = document.getElementById('palette') as HTMLDivElement;
 const currentColorDiv = document.getElementById('current-color') as HTMLSpanElement;
@@ -24,3 +27,8 @@ window.onload = async () => {
   urlManager.loadCanvasFromURL();   // URLからキャンバスデータを復元
   urlManager.setupShareButton();    // 共有ボタンの設定
 };
+
+// ウィンドウリサイズ時にキャンバスとパレットのサイズを再設定
+window.addEventListener('resize', () => {
+  // CanvasManager内で自動的に更新されるため、ここでは特に処理不要
+});

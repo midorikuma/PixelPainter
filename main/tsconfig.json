@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "target": "es2015",                 // 出力されるJavaScriptのバージョン
-    "module": "esnext",            // Webpackがモジュール解決を行うのでNodeNextモジュールを使う
+    "module": "esnext",            // Webpackがモジュール解決を行うのでNodeNextモジュールを使う,
     "strict": true,                   // 厳格な型チェック
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": ["@cloudflare/workers-types"],
+    "lib": ["DOM","esnext", "webworker"],
   },
   "include": [
-    "src/**/*.ts"                    // srcフォルダ内の全てのTypeScriptファイル
+    "src/**/*.ts",                    // srcフォルダ内の全てのTypeScriptファイル
+    "functions/**/*.ts"
   ],
   "downlevelIteration": true,
   "moduleResolution": "node"

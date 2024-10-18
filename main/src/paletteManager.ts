@@ -6,7 +6,7 @@ export class PaletteManager {
   private paletteDiv: HTMLDivElement;
   private currentColorDiv: HTMLSpanElement;
   private selectedColor: string = '#000000';
-  private selectedColorIndex: number = 3;
+  private selectedColorIndex: number = 39;
   public colorDivs: HTMLDivElement[] = []; // カラー要素のリスト
 
   constructor(paletteDiv: HTMLDivElement, currentColorDiv: HTMLSpanElement) {

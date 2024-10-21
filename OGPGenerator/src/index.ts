@@ -108,7 +108,7 @@ class MetaTagInserter {
   element(element: Element) {
     element.append(
       `
-      <meta property="og:title" content="Pixel Art">
+      <meta property="og:title" content="PixelPainter">
       <meta property="og:description" content="Check out my pixel art!">
       <meta property="og:image" content="${this.imageUrl}">
       <meta name="twitter:card" content="summary_large_image">

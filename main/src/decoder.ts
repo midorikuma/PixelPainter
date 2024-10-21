@@ -82,27 +82,22 @@ export function decodeAndDecompress(encoded: string): number[] {
   let decodedData: Uint8Array = urlSafeBase64Decode(base64Data);
 
   let dictionary: number[] = [];
-  let maxRLESize = 0;
   let valuesCount = 0;
   let dictSize = 0;
+  let maxRLESize = 0;
 
-  // console.log(decodedData)
-  
   // Deflate圧縮が使われている場合
   if (methodIndicator & 8) {
     decodedData = pako.inflate(decodedData);  // Deflate展開
   }
 
   // もし辞書型圧縮が使われている場合
-  if (methodIndicator & 1) {
-    dictSize = decodedData[0];  // 辞書サイズ
-    maxRLESize = decodedData[1];  // 最大RLEサイズ
-    dictionary = Array.from(decodedData.slice(2, dictSize + 2));  // 辞書
-    valuesCount = decodedData[dictSize + 2];  // 値の数
-
-    // 辞書型圧縮のデータを切り取る
-    decodedData = decodedData.slice(dictSize + 3);  // 圧縮データ部分を取得
-  }
+  dictSize = decodedData[0];  // 辞書サイズ
+  maxRLESize = decodedData[1];  // 最大RLEサイズ
+  dictionary = Array.from(decodedData.slice(2, dictSize + 2));  // 辞書
+  valuesCount = decodedData[dictSize + 2];  // 値の数
+  // 辞書型圧縮のデータを切り取る
+  decodedData = decodedData.slice(dictSize + 3);  // 圧縮データ部分を取得
 
   let values: number[] = [];
   let runLengths: number[] = [];
@@ -112,12 +107,16 @@ export function decodeAndDecompress(encoded: string): number[] {
     const dictBitSize = Math.ceil(Math.log2(dictSize));
     const maxRLEBitSize = Math.ceil(Math.log2(maxRLESize));
     ({ values, runLengths } = decompressWithBitSize(decodedData, dictBitSize, maxRLEBitSize, valuesCount));
+    // RLEデコードを行い、元のデータを復元
+    const decodedResult = rleDecode(values, runLengths);
+
+    // decodedData を復元されたデータで更新
+    decodedData = new Uint8Array(decodedResult);
   }
 
   // もしRLEが使われている場合
   if (methodIndicator & 2) {
     if (values.length === 0 || runLengths.length === 0) {
-      // RLEがあるのにビット圧縮されていなかった場合、RLEデータを直接使う
       const rleData = Array.from(decodedData);
       values = rleData.slice(0, valuesCount);
       runLengths = rleData.slice(valuesCount);

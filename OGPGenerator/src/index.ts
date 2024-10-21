@@ -1,4 +1,3 @@
-import { decodeAndDecompress } from '../../main/src/decoder';
 import { generateImage } from './imageGenerator';
 declare const MY_R2_BUCKET: R2Bucket;
 
@@ -20,7 +19,7 @@ export async function handleRequest(request: Request): Promise<Response> {
   }
 
   // dataパラメータを含む場合、OGPメタタグを挿入
-  if (url.searchParams.has('data')) {
+  if (url.searchParams.has('p')) {
     return handleOGPAndPageRequest(request);
   } else {
     // dataパラメータがない場合はそのままCloudflare Pagesのコンテンツを返す
@@ -61,7 +60,7 @@ async function handleImageRequest(pathname: string): Promise<Response> {
 // OGPメタタグを挿入してページを返す
 async function handleOGPAndPageRequest(request: Request): Promise<Response> {
   const url = new URL(request.url);
-  const data = url.searchParams.get('data');
+  const data = url.searchParams.get('p');
   if (!data) {
     return new Response('Missing data parameter', { status: 400 });
   }
@@ -71,13 +70,34 @@ async function handleOGPAndPageRequest(request: Request): Promise<Response> {
   // 元のページを取得
   const originalResponse = await fetch(request);
 
-  // OGPメタタグを挿入するためにHTMLRewriterを使用
+  // OGPメタタグを挿入または既存のタグを改変
   return new HTMLRewriter()
-    .on('head', new MetaTagInserter(imageUrl))
+    .on('meta', new MetaTagUpdater(imageUrl))  // メタタグが存在する場合に内容を変更
+    .on('head', new MetaTagInserter(imageUrl)) // メタタグがない場合は新しく挿入
     .transform(originalResponse);
 }
 
-// HTMLRewriterで使用するクラス
+// HTMLRewriterで使用するクラス（既存のメタタグがある場合は上書きする）
+class MetaTagUpdater {
+  private imageUrl: string;
+
+  constructor(imageUrl: string) {
+    this.imageUrl = imageUrl;
+  }
+
+  element(element: Element) {
+    const property = element.getAttribute('property');
+    if (property === 'og:image') {
+      element.setAttribute('content', this.imageUrl);
+    } else if (property === 'og:title') {
+      element.setAttribute('content', 'Pixel Art');
+    } else if (property === 'og:description') {
+      element.setAttribute('content', 'Check out my pixel art!');
+    }
+  }
+}
+
+// HTMLRewriterで使用するクラス（新しいメタタグを挿入）
 class MetaTagInserter {
   private imageUrl: string;
 
@@ -104,8 +124,7 @@ async function getOrCreateImageUrl(data: string, url: URL): Promise<string> {
   if (cacheURL) {
     return cacheURL;
   } else {
-    const decodedData = decodeAndDecompress(data);
-    const imageBuffer = await generateImage(decodedData);
+    const imageBuffer = await generateImage(data);
     const uploadURL = await uploadToR2(data, imageBuffer, url);
     return uploadURL;
   }
@@ -122,7 +141,7 @@ async function uploadToR2(
     httpMetadata: { contentType: 'image/png' },
   });
 
-  return `${requestUrl.origin}/images/${encodeURIComponent(objectKey)}`;
+  return `https://pixelpainter.huedpaw.com/images/${encodeURIComponent(objectKey)}`;
 }
 
 // R2キャッシュが存在する場合のURLを取得
@@ -134,7 +153,7 @@ async function getCacheURL(
   const object = await MY_R2_BUCKET.head(objectKey);
 
   if (object) {
-    return `${requestUrl.origin}/images/${encodeURIComponent(objectKey)}`;
+    return `https://pixelpainter.huedpaw.com/images/${encodeURIComponent(objectKey)}`;
   }
   return null;
 }

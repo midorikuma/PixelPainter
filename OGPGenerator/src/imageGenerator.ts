@@ -1,8 +1,9 @@
 import { getPaletteColors } from '../../main/src/paletteGenerator';
+import { decodeAndDecompress } from '../../main/src/decoder';
 
 declare const CANVAS_MANAGER_WASM: WebAssembly.Module;
 
-export async function generateImage(decodedData: number[]): Promise<ArrayBuffer> {
+export async function generateImage(data: string): Promise<ArrayBuffer> {
   // WASMモジュールのインスタンス化
   const wasmInstance = await WebAssembly.instantiate(CANVAS_MANAGER_WASM, {});
   const {
@@ -31,6 +32,7 @@ export async function generateImage(decodedData: number[]): Promise<ArrayBuffer>
   const offsetY = Math.floor((canvasHeight - drawingHeight) / 2);
 
   // メモリの確保とデータのコピー
+  const decodedData = decodeAndDecompress(data);
   const dataPtr = alloc(decodedData.length);
   const dataView = new Uint8Array(memory.buffer, dataPtr, decodedData.length);
   dataView.set(decodedData);

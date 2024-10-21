@@ -21,7 +21,7 @@ export class URLManager {
 
         const isCanvasEmpty = canvasData.every(pixel => pixel === 0);
         const baseURL = window.location.origin + window.location.pathname;
-        const shareURL = isCanvasEmpty ? baseURL : `${baseURL}?data=${compressAndEncode(canvasData)}`;
+        const shareURL = isCanvasEmpty ? baseURL : `${baseURL}?p=${compressAndEncode(canvasData)}`;
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(shareURL).then(() => {
@@ -45,7 +45,7 @@ export class URLManager {
   // URLからキャンバスデータを復元する処理
   loadCanvasFromURL() {
     const params = new URLSearchParams(window.location.search);
-    const encodedData = params.get('data');
+    const encodedData = params.get('p');
 
     if (encodedData) {
       try {

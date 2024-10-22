@@ -3,9 +3,81 @@ import { decodeAndDecompress } from '../../main/src/decoder';
 
 declare const CANVAS_MANAGER_WASM: WebAssembly.Module;
 
+
+export async function generateIcon(data: string): Promise<ArrayBuffer> {
+  // WASMモジュールのインスタンス化
+  const wasmInstance = await WebAssembly.instantiate(CANVAS_MANAGER_WASM, {});
+  const {
+    memory,
+    alloc,
+    dealloc,
+    init_canvas,
+    generate_image_with_offset,
+    get_image_data,
+    get_image_size,
+  } = wasmInstance.exports as any;
+
+  // カラーパレットを取得
+  const colors = getPaletteColors();
+
+  // 160x160のキャンバスサイズを設定
+  const canvasWidth = 160;
+  const canvasHeight = 160;
+
+  // キャンバスの初期化
+  init_canvas(canvasWidth, canvasHeight);
+
+  // カラー情報のメモリ確保とセット
+  const colorsPtr = alloc(colors.length);
+  const colorsView = new Uint8Array(memory.buffer, colorsPtr, colors.length);
+  colorsView.set(colors);
+
+  // データのデコード（16x16のピクセルデータをデコード）
+  const decodedData = decodeAndDecompress(data);
+  const dataPtr = alloc(decodedData.length);
+  const dataView = new Uint8Array(memory.buffer, dataPtr, decodedData.length);
+  dataView.set(decodedData);
+
+  // 拡大倍率を10（16x16を160x160にするため）に設定
+  const dotSize = 10;
+
+  // 画像生成関数を呼び出し（中央に配置）
+  generate_image_with_offset(
+    dataPtr, decodedData.length,
+    16, dotSize,               // 16x16のグリッド、ドットサイズを10に拡大
+    colorsPtr, colors.length,
+    0, 0                       // オフセットなしで左上から描画
+  );
+
+  // 画像サイズを取得
+  const imageSize = get_image_size();
+
+  // 画像データを受け取るためのバッファを確保
+  const imagePtr = alloc(imageSize);
+
+  // 画像データを取得
+  const copiedSize = get_image_data(imagePtr, imageSize);
+
+  // WASMメモリから画像データを取得
+  const imageData = new Uint8Array(memory.buffer, imagePtr, copiedSize);
+
+  // 画像データをコピーしてArrayBufferに変換
+  const resultBuffer = new Uint8Array(copiedSize);
+  resultBuffer.set(imageData);
+
+  // メモリの解放
+  dealloc(dataPtr, decodedData.length);
+  dealloc(colorsPtr, colors.length);
+  dealloc(imagePtr, imageSize);
+
+  // 160x160のPNG画像を返す
+  return resultBuffer.buffer;
+}
+
+
 export async function generateImage(data: string): Promise<ArrayBuffer> {
   const wasmInstance = await WebAssembly.instantiate(CANVAS_MANAGER_WASM, {});
-  const { memory, alloc, dealloc, init_canvas, generate_image_with_offset, get_image_data, get_image_size } = wasmInstance.exports as any;
+  const { memory, alloc, dealloc, init_canvas, generate_image_with_offset, fill_transparent_with_white, get_image_data, get_image_size } = wasmInstance.exports as any;
 
   const colors = getPaletteColors();
   const canvasWidth = 300;
@@ -45,7 +117,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr1, additionalData1.length,
     16, 1,
     colorsPtr, colors.length,
-    0, 0
+    16, 0
   );
   dealloc(additionalDataPtr1, additionalData1.length);
 
@@ -58,7 +130,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr2, additionalData2.length,
     16, 1,
     colorsPtr, colors.length,
-    16, 0
+    32, 0
   );
   dealloc(additionalDataPtr2, additionalData2.length);
   
@@ -71,7 +143,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr3, additionalData3.length,
     16, 1,
     colorsPtr, colors.length,
-    canvasWidth-16, canvasHeight-16
+    canvasWidth-32, canvasHeight-16
   );
   dealloc(additionalDataPtr3, additionalData3.length);
 
@@ -91,7 +163,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr4, additionalData4.length,
     16, 2,
     colorsPtr, colors.length,
-    0, canvasHeight-4
+    16, canvasHeight-4
   );
   dealloc(additionalDataPtr4, additionalData4.length);
   
@@ -104,5 +176,6 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
   dealloc(colorsPtr, colors.length);
   dealloc(imagePtr, imageSize);
 
+  fill_transparent_with_white();
   return resultBuffer.buffer;
 }

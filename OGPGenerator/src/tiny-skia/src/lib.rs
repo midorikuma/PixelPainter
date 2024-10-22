@@ -80,6 +80,30 @@ pub fn generate_image_with_offset(
 }
 
 #[wasm_bindgen]
+pub fn fill_transparent_with_white() {
+    IMAGE_DATA.with(|data| {
+        if let Some(ref mut pixmap) = *data.borrow_mut() {
+            let width = pixmap.width();
+            let height = pixmap.height();
+            let pixels = pixmap.pixels_mut();
+
+            // 透過部分を白で塗りつぶす処理
+            for y in 0..height {
+                for x in 0..width {
+                    let pos = (y * width + x) as usize;
+                    let pixel = &mut pixels[pos];
+                    
+                    // アルファ値が0（完全に透過）であれば白色に変更
+                    if pixel.alpha() == 0 {
+                        *pixel = PremultipliedColorU8::from_rgba(255, 255, 255, 255).unwrap();
+                    }
+                }
+            }
+        }
+    });
+}
+
+#[wasm_bindgen]
 pub fn get_image_data(ptr: *mut u8, max_size: usize) -> usize {
     IMAGE_DATA.with(|data| {
         if let Some(ref pixmap) = *data.borrow() {

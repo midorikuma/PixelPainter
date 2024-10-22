@@ -9,22 +9,29 @@
 </head>
 
 <body>
-    <h1>Pixel Painter</h1>
+    <div class="pixel-painter">
+        <div class="main-container">
+            <!-- 16x16のドットエディタキャンバス -->
+            <canvas id="canvas"></canvas>
 
-    <!-- 16x16のドットエディタキャンバス -->
-    <canvas id="canvas"></canvas> <!-- widthとheightを削除 -->
+            <!-- カラーパレットと選択中の色表示をまとめる -->
+            <div class="palette-container">
+                <!-- 選択中の色表示 -->
+                <div class="selected-color">選択中の色: <span id="current-color">#000000</span></div>
 
-    <!-- 選択中の色表示 -->
-    <div class="selected-color">選択中の色: <span id="current-color">#000000</span></div>
+                <!-- カラーパレット -->
+                <div class="palette" id="palette"></div>
+            </div>
+        </div>
 
-    <!-- カラーパレット -->
-    <div class="palette" id="palette"></div>
+        <!-- 共有ボタンと共有URL -->
+        <div class="share-container">
+            <button id="shareButton">共有</button>
+            <span id="shareURL"></span>
+        </div>
 
-    <!-- 共有ボタン -->
-    <button id="shareButton">共有</button>
-    <span id="shareURL"></span>
-
-    <script src="bundle.js"></script>
+        <script src="bundle.js"></script>
+    </div>
 </body>
 
 </html>

@@ -1,27 +1,26 @@
-:root {
+.pixel-painter {
   --grid-gap: 2px;         /* グリッド間の隙間 */
   --grid-padding: 0px;     /* 左右端の余白 */
-  --columns: 13;           /* 列数 */
-  --rows: 4;               /* 行数 */
+  --columns: 13;           /* パレットの列数 */
+  --rows: 4;               /* パレットの行数 */
   --cell-size: calc(
-    (100vw - (var(--grid-padding) * 2) - ((var(--columns) - 1) * var(--grid-gap))) / var(--columns)
+    (90vmin - (var(--grid-padding) * 2) - ((var(--columns) - 1) * var(--grid-gap))) / var(--columns)
   ); /* 各セルのサイズ */
 }
 
-/* 全要素にボックスサイズを適用し、デフォルトのマージンとパディングをリセット */
-* {
+.pixel-painter * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body {
+.pixel-painter html, .pixel-painter body {
   width: 100%;
   height: 100%;
-  overflow-x: hidden; /* 水平スクロールを防止 */
+  overflow: hidden; /* 全体のスクロールを防止 */
 }
 
-body {
+.pixel-painter body {
   font-family: sans-serif;
   display: flex;
   flex-direction: column;
@@ -29,38 +28,59 @@ body {
   justify-content: flex-start; /* 上部に配置 */
   overflow: hidden;            /* 全体のスクロールを防止 */
   touch-action: none;          /* タッチスクロールやズームを防止 */
+  padding: 10px;               /* 少し余白を追加 */
 }
 
-/* キャンバスのスタイル */
-canvas {
+.pixel-painter .main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto; /* 伸縮可能 */
+  width: 50vmin;  /* 中央揃えのための固定幅 */
+  max-width: 90vmin;
+  max-height: 120vmin;
+  margin: 0 auto; /* 横方向の中央揃え */
+}
+
+.pixel-painter canvas {
   border: 1px solid black;
-  display: block; /* インラインスペースを除去 */
+  width: 100%; /* キャンバスを親要素の幅に合わせる */
+  height: 50vmin; /* キャンバスのサイズを60vminに設定 */
+  object-fit: contain;
 }
 
-/* パレットのスタイル */
-.palette {
-  width: calc(var(--columns) * var(--cell-size) + (var(--columns) - 1) * var(--grid-gap));
-  max-width: 100%; /* 初期設定。JavaScriptでキャンバスの1.5倍に制限 */
-  display: grid;
-  grid-template-columns: repeat(var(--columns), var(--cell-size));
-  grid-template-rows: repeat(var(--rows), var(--cell-size));
-  gap: var(--grid-gap); /* グリッド間の隙間 */
-  margin-top: 20px;
-  padding: 0 var(--grid-padding); /* 左右端の余白 */
-  justify-content: center; /* グリッド全体を中央に配置 */
-}
-
-/* グリッドセルのスタイル */
-.color {
+.pixel-painter .palette-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  height: 100%;
-  cursor: pointer;
-  background-color: lightgray; /* デフォルトの色 */
-  position: relative;
+  margin-top: 10px;
 }
 
-/* 各グリッドセルに内向きの灰色アウトラインを追加 */
-.color::before {
+.pixel-painter .selected-color {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.pixel-painter .palette {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), var(--cell-size)); /* 各セルのサイズに基づくカラム設定 */
+  grid-template-rows: repeat(var(--rows), var(--cell-size));       /* 各セルのサイズに基づく行設定 */
+  gap: var(--grid-gap);
+  justify-content: center; /* パレットの中央揃え */
+}
+
+.pixel-painter .color {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background-color: lightgray;
+  position: relative;
+  cursor: pointer;
+}
+
+.pixel-painter .color::before {
   content: '';
   position: absolute;
   top: 0;
@@ -72,44 +92,83 @@ canvas {
   pointer-events: none; /* アウトラインがクリックを妨げないように */
 }
 
-/* 選択時の黒枠 */
-.color.selected::before {
+.pixel-painter .color.selected::before {
   border: 2px solid black; /* 選択された色に太い黒枠を付ける */
 }
 
-/* 選択中の色表示 */
-.selected-color {
-  margin-top: 10px;
-  font-size: 1.2em;
-  text-align: center;
+.pixel-painter .share-container {
+  display: flex;
+  justify-content: center; /* 共有ボタンを中央に揃える */
+  align-items: center;
+  margin-top: 20px;
+  width: 100%;
 }
 
-/* 共有ボタンのスタイル */
-#shareButton {
-  margin-top: 20px;
-  display: block;
+.pixel-painter #shareButton {
+  margin: 0 auto; /* 共有ボタン自体の中央揃え */
   width: 100px;
   padding: 10px;
-  text-align: center;
   background-color: #4CAF50;
   color: white;
   border: none;
   cursor: pointer;
-}
-
-#shareButton:hover {
-  background-color: #45a049;
-}
-
-/* 共有URLの表示 */
-#shareURL {
-  margin-top: 10px;
-  display: block;
-  font-size: 14px;
   text-align: center;
 }
 
-/* キャンバスとパレットがタッチ操作でページをスクロールさせないようにする */
-canvas, .palette {
+.pixel-painter #shareButton:hover {
+  background-color: #45a049;
+}
+
+.pixel-painter #shareURL {
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+  word-wrap: break-word; /* URLが長い場合に折り返す */
+}
+
+.pixel-painter canvas, .pixel-painter .palette {
   touch-action: none;
+}
+
+@media (max-width: 600px) {
+  .pixel-painter .main-container {
+    width: 100vw;  /* 画面全体に広げる */
+    height: 100vh; /* 縦方向も画面全体に広げる */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* キャンバスとパレットの間に余白を作る */
+    overflow: hidden;  /* 見切れ防止 */
+    padding: 0;  /* 余白を削除してスペースを最大限利用 */
+  }
+
+  .pixel-painter canvas {
+    max-width: 100vw; /* 横幅を画面全体にフィット */
+    height: 50vh; /* キャンバスの高さを50vhに設定してパレットにスペースを確保 */
+    width: auto; /* アスペクト比を維持 */
+    object-fit: contain; /* キャンバスのアスペクト比を保つ */
+  }
+
+  .pixel-painter .palette-container {
+    width: 100vw; /* パレットを画面いっぱいに広げる */
+    max-height: auto; /* パレットの高さを自動調整して伸ばす */
+    padding: 0;  /* 余白を最小限に */
+    margin-top: 5px; /* キャンバスとの距離を最小限に調整 */
+  }
+
+  .pixel-painter .palette {
+    display: grid;
+    grid-template-columns: repeat(var(--columns), 1fr); /* 元の列数のままにする */
+    grid-template-rows: repeat(var(--rows), 1fr); /* 元の行数のままにする */
+    gap: var(--grid-gap); /* グリッドの隙間を保持 */
+    justify-content: center; /* パレットを中央揃え */
+    height: auto; /* パレットの高さを自動調整 */
+  }
+
+  .pixel-painter #shareButton {
+    width: 80px;  /* スマホ向けにボタンを少し小さく */
+    padding: 8px;
+    margin-top: 10px; /* パレットとの距離を調整 */
+    align-self: center; /* ボタンを中央に配置 */
+  }
 }

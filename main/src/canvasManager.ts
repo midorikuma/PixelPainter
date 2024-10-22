@@ -30,16 +30,16 @@ export class CanvasManager {
     this.gridGap = parseFloat(gridGapStr) || 0;
   }
 
-  async initialize() {
-    // グリッドサイズを計算
-    const availableWidth = window.innerWidth * 0.9; // 画面幅の50%をキャンバスに使用（調整可能）
-    this.dotSize = (availableWidth - (this.columns - 1) * this.gridGap) / this.columns;
+async initialize() {
+    // 画面の短い方を基準にサイズを計算 (60vminを基準)
+    const availableSize = Math.min(window.innerWidth, window.innerHeight) * 0.6;
+    this.dotSize = (availableSize - (this.columns - 1) * this.gridGap) / this.columns;
 
     // キャンバスのサイズを設定
     this.canvas.width = this.columns * this.dotSize + (this.columns - 1) * this.gridGap;
     this.canvas.height = this.rows * this.dotSize + (this.rows - 1) * this.gridGap;
 
-    // パレットの最大横幅をキャンバスの1.5倍または画面幅の最大に設定
+    // パレットの最大横幅をキャンバスの幅に合わせる
     this.paletteManager.setMaxWidth(this.canvas.width);
 
     // グリッド描画
@@ -47,7 +47,24 @@ export class CanvasManager {
 
     // イベントリスナーの設定
     this.setupEventListeners();
-  }
+}
+
+private updateCanvasSize() {
+    // 画面の短い方を基準にサイズを再計算 (60vminを基準)
+    const availableSize = Math.min(window.innerWidth, window.innerHeight) * 0.6;
+    this.dotSize = (availableSize - (this.columns - 1) * this.gridGap) / this.columns;
+
+    // キャンバスのサイズを再設定
+    this.canvas.width = this.columns * this.dotSize + (this.columns - 1) * this.gridGap;
+    this.canvas.height = this.rows * this.dotSize + (this.rows - 1) * this.gridGap;
+
+    // パレットの最大横幅を再設定
+    this.paletteManager.setMaxWidth(this.canvas.width);
+
+    // キャンバスデータを保持しつつ再描画
+    this.drawGrid();
+}
+
 
   private setupEventListeners() {
     // マウスイベント
@@ -86,27 +103,6 @@ export class CanvasManager {
     window.addEventListener('resize', () => {
       this.updateCanvasSize();
     });
-  }
-
-  // キャンバスのサイズを更新するメソッド
-  private updateCanvasSize() {
-    // 既存の描画データを保存
-    const oldCanvasData = [...this.canvasData];
-
-    // グリッドサイズを再計算
-    const availableWidth = window.innerWidth * 0.5; // 画面幅の50%をキャンバスに使用（調整可能）
-    this.dotSize = (availableWidth - (this.columns - 1) * this.gridGap) / this.columns;
-
-    // キャンバスのサイズを再設定
-    this.canvas.width = this.columns * this.dotSize + (this.columns - 1) * this.gridGap;
-    this.canvas.height = this.rows * this.dotSize + (this.rows - 1) * this.gridGap;
-
-    // パレットの最大横幅を再設定
-    this.paletteManager.setMaxWidth(this.canvas.width);
-
-    // キャンバスデータを再設定（必要に応じて）
-    this.canvasData = oldCanvasData;
-    this.drawGrid();
   }
 
   // グリッドを描画
@@ -148,22 +144,30 @@ export class CanvasManager {
     return colors[index] || 'white'; // デフォルトは白色
   }
 
-  private handleDraw(clientX: number, clientY: number) {
+private handleDraw(clientX: number, clientY: number) {
+    // キャンバスの正確な表示領域を取得
     const rect = this.canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    
+    // キャンバス内の座標を計算
+    const x = (clientX - rect.left) * (this.canvas.width / rect.width);
+    const y = (clientY - rect.top) * (this.canvas.height / rect.height);
+
     const gridX = Math.floor(x / (this.dotSize + this.gridGap));
     const gridY = Math.floor(y / (this.dotSize + this.gridGap));
 
-    // グリッド外の場合は無視
+    // キャンバス外の場合は無視
     if (gridX < 0 || gridX >= this.columns || gridY < 0 || gridY >= this.rows) {
       return;
     }
 
+    // 選択中の色でキャンバスデータを更新
     const selectedColorIndex = this.paletteManager.getSelectedColorIndex();
     this.canvasData[gridY * this.columns + gridX] = selectedColorIndex;
+
+    // 再描画
     this.drawGrid();
-  }
+}
+
 
   getCanvasData(): number[] {
     return this.canvasData;

@@ -47,7 +47,7 @@ export function rleEncodeWithMax(data: number[], maxRLE: number): { values: numb
   let count = 1;
 
   for (let i = 1; i <= data.length; i++) {
-    if (data[i] === data[i - 1] && count < maxRLE) {
+    if (i < data.length && data[i] === data[i - 1] && count < maxRLE) {
       count++;
     } else {
       values.push(data[i - 1]);
@@ -125,20 +125,20 @@ export function compressAndEncode(data: number[]): string {
   }
 
   // 2. RLE圧縮を適用して短縮されたか確認
-  const maxRLESize = calculateMaxRLE(data);
+  const maxRLESize = calculateMaxRLE(currentData as number[]);
   const dictSize = dictionary.length;
   const { values, runLengths } = rleEncodeWithMax(currentData as number[], maxRLESize);
   const RLEData = [...values, ...runLengths];
   if (RLEData.length < currentData.length) {
     currentData = RLEData;
     methodIndicator |= 2;  // RLEが適用されたことをビットフラグに記録
-  }
 
-  // 3. ビット圧縮を適用して短縮されたか確認
-  const compressedBits = compressWithBitSize(values, runLengths, dictSize, maxRLESize);
-  if (compressedBits.length < currentData.length) {
-    currentData = compressedBits;
-    methodIndicator |= 4;  // ビット圧縮が適用されたことをビットフラグに記録
+    // 3. ビット圧縮を適用して短縮されたか確認 (RLEが適用された場合のみ)
+    const compressedBits = compressWithBitSize(values, runLengths, dictSize, maxRLESize);
+    if (compressedBits.length < currentData.length) {
+      currentData = compressedBits;
+      methodIndicator |= 4;  // ビット圧縮が適用されたことをビットフラグに記録
+    }
   }
 
   // 辞書サイズ、最大RLEサイズ、辞書、データサイズ、データを連結
@@ -150,8 +150,6 @@ export function compressAndEncode(data: number[]): string {
     currentData = deflatedData;
     methodIndicator |= 8;  // Deflate圧縮が適用されたことをビットフラグに記録
   }
-  
-  // console.log(currentData)
 
   // 圧縮方式フラグを1文字に変換して付加
   const methodChar = String.fromCharCode(65 + methodIndicator);  // A, B, C, D...

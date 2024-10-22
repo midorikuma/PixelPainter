@@ -36,8 +36,8 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
   );
   dealloc(dataPtr, decodedData.length);
 
-  // 追加
-  const additionalData1 = decodeAndDecompress('NeJxjFeDUZBA3ntkh4KLc1CNlqiR1vFBGsFfKtK_jWKEMiBv4WMOFQ4llsVuv05HAxx0ZMscLRRYVQkn33kkvOjh6Ozo6VnR0TJjRAQIcnR0dQNYECBNETehg6OzreACkObqAQhwTgdKdHSgAzGUAAP_vPCc');
+  // 追加：左上ロゴ
+  const additionalData1 = decodeAndDecompress('JeJx9jjEOgDAMA9M4MHdg4AnsvJbfIjulVEXCmS6O7Kx1P6yc22VWfJSVcYEgIxqQZSOeIcpw4OUc3Xd2-cuk_34xMj8_4D3DlAblZ3ErIcfE3fdv_w13MQPx');
   const additionalDataPtr1 = alloc(additionalData1.length);
   const additionalDataView1 = new Uint8Array(memory.buffer, additionalDataPtr1, additionalData1.length);
   additionalDataView1.set(additionalData1);
@@ -49,8 +49,8 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
   );
   dealloc(additionalDataPtr1, additionalData1.length);
 
-  // 追加
-  const additionalData2 = decodeAndDecompress('PeJxjXsggbqygMjNFbaaKp9pCRgjgABFMjJzMQIoLxGLkBmJGKQCg7wSC');
+  // 追加：左上ロゴ2
+  const additionalData2 = decodeAndDecompress('PeJxjWcjAaCyipDIzRW2miqeasJQAGDSACAWBCQZAagGQISCwAUQsmFDAAADqowmQ');
   const additionalDataPtr2 = alloc(additionalData2.length);
   const additionalDataView2 = new Uint8Array(memory.buffer, additionalDataPtr2, additionalData2.length);
   additionalDataView2.set(additionalData2);
@@ -61,6 +61,39 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     16, 0
   );
   dealloc(additionalDataPtr2, additionalData2.length);
+  
+  // 追加：右下ロゴ
+  const additionalData3 = decodeAndDecompress('HCA4AHAgYJQcnGlEIomiKRkXjFI1TNI6KxlFROSrqqMgdFd2lIpeKoiAIj3A5KTERkpKJEZIZkZEZCRGZmRARmRGRmRmRmBgSiRgpkZEwcfEIDw');
+  const additionalDataPtr3 = alloc(additionalData3.length);
+  const additionalDataView3 = new Uint8Array(memory.buffer, additionalDataPtr3, additionalData3.length);
+  additionalDataView3.set(additionalData3);
+  generate_image_with_offset(
+    additionalDataPtr3, additionalData3.length,
+    16, 1,
+    colorsPtr, colors.length,
+    canvasWidth-16, canvasHeight-16
+  );
+  dealloc(additionalDataPtr3, additionalData3.length);
+
+  // 追加：左下パレット
+  let nonZeroIndices = Array.from(decodedData).filter(index => index !== 0);
+  nonZeroIndices = Array.from(new Set(nonZeroIndices)).sort((a, b) => a - b);
+  const sortedData = new Uint8Array(decodedData.length);
+  nonZeroIndices.forEach((value, index) => {
+    sortedData[index] = value;
+  });
+
+  const additionalData4 = sortedData;
+  const additionalDataPtr4 = alloc(additionalData4.length);
+  const additionalDataView4 = new Uint8Array(memory.buffer, additionalDataPtr4, additionalData4.length);
+  additionalDataView4.set(additionalData4);
+  generate_image_with_offset(
+    additionalDataPtr4, additionalData4.length,
+    16, 2,
+    colorsPtr, colors.length,
+    0, canvasHeight-4
+  );
+  dealloc(additionalDataPtr4, additionalData4.length);
   
   const imageSize = get_image_size();
   const imagePtr = alloc(imageSize);

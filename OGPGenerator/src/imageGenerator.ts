@@ -77,7 +77,7 @@ export async function generateIcon(data: string): Promise<ArrayBuffer> {
 
 export async function generateImage(data: string): Promise<ArrayBuffer> {
   const wasmInstance = await WebAssembly.instantiate(CANVAS_MANAGER_WASM, {});
-  const { memory, alloc, dealloc, init_canvas, generate_image_with_offset, fill_transparent_with_white, get_image_data, get_image_size } = wasmInstance.exports as any;
+  const { memory, alloc, dealloc, init_canvas, generate_image_with_offset, get_image_data, get_image_size } = wasmInstance.exports as any;
 
   const colors = getPaletteColors();
   const canvasWidth = 300;
@@ -117,7 +117,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr1, additionalData1.length,
     16, 1,
     colorsPtr, colors.length,
-    16, 0
+    32, 2
   );
   dealloc(additionalDataPtr1, additionalData1.length);
 
@@ -130,7 +130,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr2, additionalData2.length,
     16, 1,
     colorsPtr, colors.length,
-    32, 0
+    48, 2
   );
   dealloc(additionalDataPtr2, additionalData2.length);
   
@@ -143,11 +143,11 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr3, additionalData3.length,
     16, 1,
     colorsPtr, colors.length,
-    canvasWidth-32, canvasHeight-16
+    canvasWidth-44, canvasHeight-16-2
   );
   dealloc(additionalDataPtr3, additionalData3.length);
 
-  // 追加：左下パレット
+  // 追加：左上パレット
   let nonZeroIndices = Array.from(decodedData).filter(index => index !== 0);
   nonZeroIndices = Array.from(new Set(nonZeroIndices)).sort((a, b) => a - b);
   const sortedData = new Uint8Array(decodedData.length);
@@ -163,7 +163,7 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
     additionalDataPtr4, additionalData4.length,
     16, 2,
     colorsPtr, colors.length,
-    16, canvasHeight-4
+    32, 16+2+4
   );
   dealloc(additionalDataPtr4, additionalData4.length);
   
@@ -176,6 +176,5 @@ export async function generateImage(data: string): Promise<ArrayBuffer> {
   dealloc(colorsPtr, colors.length);
   dealloc(imagePtr, imageSize);
 
-  fill_transparent_with_white();
   return resultBuffer.buffer;
 }

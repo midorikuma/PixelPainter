@@ -9,9 +9,9 @@ thread_local! {
 
 #[wasm_bindgen]
 pub fn init_canvas(canvas_width: u32, canvas_height: u32) {
-    // Pixmap（キャンバス）を作成し、透明な背景で初期化
+    // Pixmap（キャンバス）を作成し、白い背景で初期化
     let mut pixmap = Pixmap::new(canvas_width, canvas_height).expect("Failed to create pixmap");
-    pixmap.fill(Color::from_rgba8(0, 0, 0, 0)); // 透明な背景
+    pixmap.fill(Color::from_rgba8(255, 255, 255, 255)); // 白い背景
     IMAGE_DATA.with(|data| {
         *data.borrow_mut() = Some(pixmap);
     });
@@ -72,30 +72,6 @@ pub fn generate_image_with_offset(
                                 }
                             }
                         }
-                    }
-                }
-            }
-        }
-    });
-}
-
-#[wasm_bindgen]
-pub fn fill_transparent_with_white() {
-    IMAGE_DATA.with(|data| {
-        if let Some(ref mut pixmap) = *data.borrow_mut() {
-            let width = pixmap.width();
-            let height = pixmap.height();
-            let pixels = pixmap.pixels_mut();
-
-            // 透過部分を白で塗りつぶす処理
-            for y in 0..height {
-                for x in 0..width {
-                    let pos = (y * width + x) as usize;
-                    let pixel = &mut pixels[pos];
-                    
-                    // アルファ値が0（完全に透過）であれば白色に変更
-                    if pixel.alpha() == 0 {
-                        *pixel = PremultipliedColorU8::from_rgba(255, 255, 255, 255).unwrap();
                     }
                 }
             }

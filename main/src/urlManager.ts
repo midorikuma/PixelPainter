@@ -13,7 +13,7 @@ export class URLManager {
     this.shareURLDiv = shareURLDiv;
   }
 
-  // 共有ボタンのクリックでURLを生成しクリップボードにコピー
+  // 共有ボタンのクリックでURLを生成しクリップボードにコピーし、ツイート画面へ遷移
   setupShareButton() {
     this.shareButton.addEventListener('click', () => {
       try {
@@ -34,13 +34,18 @@ export class URLManager {
           this.shareURLDiv.textContent = 'クリップボードが利用できません。URL: ' + shareURL;
         }
 
+        // ツイート画面を開く
+        const hashtag = encodeURIComponent("#PixelPainter\n");
+        const tweetURL = `https://twitter.com/intent/tweet?text=${hashtag}&url=${encodeURIComponent(shareURL)}`;
+        window.open(tweetURL, '_blank');
+        window.location.href = shareURL;
+
       } catch (error) {
         console.error('エンコード処理中にエラーが発生しました: ', error);
         this.shareURLDiv.textContent = 'URLの生成に失敗しました';
       }
     });
   }
-
 
   // URLからキャンバスデータを復元する処理
   loadCanvasFromURL() {

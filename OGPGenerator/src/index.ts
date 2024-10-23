@@ -135,11 +135,18 @@ class MetaTagUpdater {
     if (property === 'og:image') {
       element.setAttribute('content', this.imageUrl);
     } else if (property === 'og:title') {
-      element.setAttribute('content', 'Pixel Art');
+      element.setAttribute('content', 'PixelPainter');
     } else if (property === 'og:description') {
       element.setAttribute('content', 'Check out my pixel art!');
     }
+
+    // Twitterカードに対応するため、name属性が'twitter:card'の場合の処理を追加
+    const name = element.getAttribute('name');
+    if (name === 'twitter:card') {
+      element.setAttribute('content', 'summary_large_image');
+    }
   }
+
 }
 
 // 画像URLを取得または生成
